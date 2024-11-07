@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thần số học</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #ff9a9e 10%, #fad0c4 100%);
+            color: #333;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffffaa;
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #FF5733;
+        }
+
+        .balance,
+        .bet-amount {
+            font-size: 1.5em;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        .buttons,
+        .dice-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            margin: 5px;
+            cursor: pointer;
+            background-color: #FF5733;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            width: 100px;
+            transition: 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #C70039;
+            transform: scale(1.1);
+        }
+
+        .result,
+        .error {
+            font-size: 1.5em;
+            margin-top: 20px;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .dice {
+            font-size: 4em;
+            margin: 10px;
+            transition: transform 5s;
+        }
+
+        .history {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .history h2 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #FF5733;
+        }
+
+        #historyList {
+            list-style-type: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        #historyList li {
+            font-size: 1em;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Thần số học</h1>
+        <p class="balance">Tài khoản của bạn: <span id="balance">$1000</span></p>
+        <p class="bet-amount">Số tiền cược: <span id="betAmount">$0</span></p>
+
+        <!-- Các nút chọn tiền cược -->
+        <div class="buttons">
+            <button class="btn" onclick="addBet(50)">50$</button>
+            <button class="btn" onclick="addBet(100)">100$</button>
+            <button class="btn" onclick="addBet(200)">200$</button>
+            <button class="btn" onclick="addBet(500)">500$</button>
+            <button class="btn" onclick="addBet(1000)">1000$</button>
+            <button class="btn" onclick="addBet(2000)">2000$</button>
+            <button class="btn" onclick="addBet(5000)">5000$</button>
+            <button class="btn" onclick="addBet(10000)">10000$</button>
+            <button class="btn" onclick="allIn()">All In</button>
+            <button class="btn" onclick="clearBet()">Xóa tiền cược</button>
+        </div>
+
+        <!-- Nút đặt cược -->
+        <div class="buttons">
+            <button class="btn" onclick="placeBet('xiu')">Đặt cược Xỉu</button>
+            <button class="btn" onclick="placeBet('tai')">Đặt cược Tài</button>
+        </div>
+
+        <!-- Thông báo lỗi và kết quả -->
+        <div class="error" id="error"></div>
+        <div class="result" id="result"></div>
+
+        <!-- 3 con xúc xắc -->
+        <div class="dice-container">
+            <span id="dice1" class="dice">⚀</span>
+            <span id="dice2" class="dice">⚁</span>
+            <span id="dice3" class="dice">⚂</span>
+        </div>
+        <!-- Lịch sử chơi -->
+        <div class="history" id="history">
+            <h2>Lịch sử chơi</h2>
+            <ul id="historyList"></ul>
+        </div>
+
+    </div>
+
+    <script>
+        let balance = 1000;
+        let betAmount = 0;
+
+        function updateDisplay() {
+            document.getElementById("balance").textContent = `$${balance}`;
+            document.getElementById("betAmount").textContent = `$${betAmount}`;
+            document.getElementById("error").textContent = "";
+        }
+
+        function addBet(amount) {
+            if (balance < amount) {
+                document.getElementById("error").textContent = "Số dư của bạn không đủ để thêm số tiền này.";
+            } else {
+                betAmount += amount;
+                updateDisplay();
+            }
+        }
+
+        function allIn() {
+            betAmount = balance;
+            updateDisplay();
+        }
+
+        function clearBet() {
+            betAmount = 0;
+            updateDisplay();
+        }
+
+        function rollDice() {
+            return Math.floor(Math.random() * 6) + 1;
+        }
+
+        function placeBet(playerChoice) {
+            if (betAmount <= 0) {
+                document.getElementById("error").textContent = "Vui lòng thêm tiền cược trước khi đặt cược.";
+                return;
+            }
+            if (betAmount > balance) {
+                document.getElementById("error").textContent = "Số dư của bạn không đủ để đặt cược số tiền này.";
+                return;
+            }
+
+            balance -= betAmount;
+            updateDisplay();
+
+            // Hiệu ứng xoay xúc xắc trong 5 giây
+            const diceElements = [document.getElementById("dice1"), document.getElementById("dice2"), document.getElementById("dice3")];
+            diceElements.forEach(dice => dice.style.transform = "rotateX(1080deg) rotateY(1080deg)");
+
+            setTimeout(() => {
+                const dice1 = rollDice();
+                const dice2 = rollDice();
+                const dice3 = rollDice();
+                const total = dice1 + dice2 + dice3;
+
+                // Kết quả tung xúc xắc
+                document.getElementById("dice1").textContent = `⚀⚁⚂⚃⚄⚅`.charAt(dice1 - 1);
+                document.getElementById("dice2").textContent = `⚀⚁⚂⚃⚄⚅`.charAt(dice2 - 1);
+                document.getElementById("dice3").textContent = `⚀⚁⚂⚃⚄⚅`.charAt(dice3 - 1);
+
+                diceElements.forEach(dice => dice.style.transform = "rotateX(0deg) rotateY(0deg)");
+
+                let resultMessage = `Tổng số điểm: ${total}. `;
+                const isTai = total >= 11 && total <= 17;
+                const isXiu = total >= 4 && total <= 10;
+                let historyMessage = `Cược ${playerChoice === 'tai' ? 'Tài' : 'Xỉu'} với ${betAmount}$ - `;
+
+                if ((playerChoice === 'tai' && isTai) || (playerChoice === 'xiu' && isXiu)) {
+                    const winnings = betAmount * 1.9;
+                    balance += winnings;
+                    resultMessage += `Chúc mừng! Bạn đã thắng và nhận được ${winnings.toFixed(2)}$. 🎉`;
+                    historyMessage += `Thắng ${winnings.toFixed(2)}$.`;
+                } else {
+                    resultMessage += `Rất tiếc, bạn đoán sai và mất ${betAmount}$. 😞`;
+                    historyMessage += `Thua ${betAmount}$.`;
+                }
+
+                document.getElementById("result").innerHTML = resultMessage;
+                addToHistory(historyMessage);
+                betAmount = 0;
+                updateDisplay();
+            }, 5000); // Thời gian chờ 5 giây cho hiệu ứng xoay xúc xắc
+        }
+
+        function addToHistory(message) {
+            const historyList = document.getElementById("historyList");
+            const listItem = document.createElement("li");
+            listItem.textContent = message;
+            historyList.insertBefore(listItem, historyList.firstChild);
+        }
+
+    </script>
+</body>
+
+</html>
